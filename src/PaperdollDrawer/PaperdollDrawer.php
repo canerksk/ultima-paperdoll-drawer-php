@@ -54,7 +54,7 @@ class PaperdollDrawer
      * @param Paperdoll $paperdoll
      * @return resource
      */
-    public function drawPaperdoll(Paperdoll $paperdoll)
+    public function drawPaperdollCanvas(Paperdoll $paperdoll)
     {
         $canvas = imagecreatefrompng(__DIR__ . '/../../resource/paperdoll.png');
         if (!$canvas) {
@@ -74,6 +74,29 @@ class PaperdollDrawer
 
         return $canvas;
     }
+
+    public function drawPaperdoll(Paperdoll $paperdoll, bool $enableAlphaBlending = true)
+    {
+        // Boş, şeffaf canvas
+        $canvas = imagecreatetruecolor(200, 300); // ihtiyacına göre boyut ver
+        imagesavealpha($canvas, true);
+        $transparent = imagecolorallocatealpha($canvas, 0, 0, 0, 127);
+        imagefill($canvas, 0, 0, $transparent);
+
+        imagealphablending($canvas, $enableAlphaBlending);
+
+        $this->addEntry($canvas, $paperdoll->getBodyEntry());
+
+        foreach ($paperdoll->getItemEntries() as $entry) {
+            $this->addEntry($canvas, $entry);
+        }
+
+        //$this->addText($canvas, $paperdoll->getName(), 266);
+        //$this->addText($canvas, $paperdoll->getTitle(), 283);
+
+        return $canvas;
+    }
+
 
     private function addEntry(&$canvas, GumpEntry $entry)
     {
@@ -115,7 +138,7 @@ class PaperdollDrawer
         }
     }
 
-    private function addGump(&$canvas, $datum)
+    private function addGumpOrj(&$canvas, $datum)
     {
         $x = intval($datum[0]) + 8;
         $y = intval($datum[1]) + 15;
@@ -130,6 +153,25 @@ class PaperdollDrawer
             }
         }
     }
+
+    private function addGump(&$canvas, $datum)
+    {
+        $x = intval($datum[0]) + 8;
+        $y = intval($datum[1]) + 15;
+        $r = max(0, min(255, intval($datum[2])));
+        $g = max(0, min(255, intval($datum[3])));
+        $b = max(0, min(255, intval($datum[4])));
+        $length = intval($datum[5]);
+
+        if ($r || $g || $b) {
+            $color = imagecolorallocate($canvas, $r, $g, $b);
+            for ($i = 0; $i < $length; $i++) {
+                imagesetpixel($canvas, $x + $i, $y, $color);
+            }
+        }
+    }
+
+    
 
     private function addText(&$canvas, $text, $y)
     {
