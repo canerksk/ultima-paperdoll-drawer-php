@@ -1,5 +1,5 @@
 {
-  "name": "ppardalj/ultima-paperdoll-drawer-php",
+  "name": "canerksk/ultima-paperdoll-drawer-php"
   "type": "library",
   "description": "Library to generate paperdoll images for Ultima Online characters",
   "keywords": ["ultima online", "ultima", "paperdoll"],
